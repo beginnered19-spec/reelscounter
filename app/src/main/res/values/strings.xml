@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Kaydırma Sayacı</string>
+    <string name="service_desc">Instagram Reels ve YouTube Shorts kaydırmalarını sayar. Veriler yalnızca cihazda tutulur.</string>
+</resources>
