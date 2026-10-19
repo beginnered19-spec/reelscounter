@@ -11,6 +11,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Imza anahtarini hazirla
+        run: base64 -d debug.keystore.b64 > debug.keystore
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
