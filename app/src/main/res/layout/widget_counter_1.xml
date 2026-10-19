@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_1"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/w_reels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:textColor="#B388FF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:shadowColor="#CCB388FF"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="14" />
+
+    <TextView
+        android:id="@+id/w_shorts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#B388FF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:shadowColor="#CCB388FF"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="14" />
+
+    <TextView
+        android:id="@+id/w_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:shadowColor="#CCB388FF"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="8" />
+
+    <TextView
+        android:id="@+id/w_ig_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="#B8C0CC"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/w_yt_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#B8C0CC"
+        android:textSize="12sp" />
+</LinearLayout>

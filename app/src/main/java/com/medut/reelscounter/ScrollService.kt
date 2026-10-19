@@ -1,7 +1,6 @@
 package com.medut.reelscounter
 
 import android.accessibilityservice.AccessibilityService
-import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
@@ -16,6 +15,7 @@ class ScrollService : AccessibilityService() {
 
     private var lastCount = 0L
     private var lastWidget = 0L
+    private var lastLockCheck = 0L
     private var wm: WindowManager? = null
     private var overlay: TextView? = null
     private val handler = Handler(Looper.getMainLooper())
@@ -42,10 +42,7 @@ class ScrollService : AccessibilityService() {
 
     private fun createOverlay() {
         val tv = TextView(this).apply {
-            setTextColor(Color.WHITE)
             textSize = 20f
-            setPadding(48, 20, 48, 20)
-            setBackgroundResource(R.drawable.overlay_bg)
             visibility = View.GONE
         }
         val lp = WindowManager.LayoutParams(
@@ -63,13 +60,25 @@ class ScrollService : AccessibilityService() {
         wm?.addView(tv, lp)
     }
 
-    private fun show(text: String) {
-        overlay?.apply {
-            this.text = text
-            visibility = View.VISIBLE
+    private fun applyTheme(tv: TextView) {
+        val t = Themes.current(this)
+        val d = resources.displayMetrics.density
+        tv.setTextColor(t.accent)
+        tv.setShadowLayer(12 * d, 0f, 0f, t.accent)
+        tv.background = Themes.glowBg(t.bg, t.accent, 40 * d, (1.5f * d).toInt(), (3 * d).toInt())
+        val h = (28 * d).toInt()
+        val v = (14 * d).toInt()
+        tv.setPadding(h, v, h, v)
+    }
+
+    private fun show(text: String, ms: Long = 3000) {
+        overlay?.let {
+            applyTheme(it)
+            it.text = text
+            it.visibility = View.VISIBLE
         }
         handler.removeCallbacks(hideRunnable)
-        handler.postDelayed(hideRunnable, 3000)
+        handler.postDelayed(hideRunnable, ms)
     }
 
     private fun detectType(pkg: String): String? {
@@ -83,10 +92,24 @@ class ScrollService : AccessibilityService() {
         return null
     }
 
+    private fun enforceLock() {
+        show("🔒 Kilitli · gece 12'de açılır", 4000)
+        performGlobalAction(GLOBAL_ACTION_HOME)
+    }
+
     override fun onAccessibilityEvent(e: AccessibilityEvent) {
         val pkg = e.packageName?.toString() ?: return
         if (pkg != UsageHelper.INSTAGRAM && pkg != UsageHelper.YOUTUBE) return
         val now = SystemClock.elapsedRealtime()
+
+        // Günlük limit dolduysa Reels/Shorts ekranına girmeyi engelle
+        if (Store.isLocked(this)) {
+            if (now - lastLockCheck > 400) {
+                lastLockCheck = now
+                if (Store.LOCK_WHOLE_APP || detectType(pkg) != null) enforceLock()
+            }
+            return
+        }
 
         if (e.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             if (now - lastWidget > 30_000) {
@@ -102,9 +125,17 @@ class ScrollService : AccessibilityService() {
         lastCount = now
 
         val n = Store.increment(this, type)
+        val total = Store.total(this)
         show(if (type == "reels") "Reels: $n" else "Shorts: $n")
         lastWidget = now
         CounterWidget.update(this)
+
+        if (total >= Store.LOCK_AT) {
+            Notifier.locked(this)
+            handler.postDelayed({ enforceLock() }, 1500)
+        } else if (total % Store.WARN_EVERY == 0) {
+            Notifier.warn(this, total)
+        }
     }
 
     override fun onInterrupt() {}

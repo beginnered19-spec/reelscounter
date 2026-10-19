@@ -15,10 +15,24 @@ class CounterWidget : AppWidgetProvider() {
     }
 
     companion object {
+        private val layouts = listOf(
+            R.layout.widget_counter_0,
+            R.layout.widget_counter_1,
+            R.layout.widget_counter_2,
+            R.layout.widget_counter_3,
+            R.layout.widget_counter_4
+        )
+
         fun build(c: Context): RemoteViews {
-            val v = RemoteViews(c.packageName, R.layout.widget_counter)
+            val idx = Store.theme(c).coerceIn(0, layouts.lastIndex)
+            val v = RemoteViews(c.packageName, layouts[idx])
             v.setTextViewText(R.id.w_reels, "Reels: ${Store.get(c, "reels")}")
             v.setTextViewText(R.id.w_shorts, "Shorts: ${Store.get(c, "shorts")}")
+            v.setTextViewText(
+                R.id.w_total,
+                if (Store.isLocked(c)) "🔒 Kilitli · gece 12'de açılır"
+                else "Toplam: ${Store.total(c)} / ${Store.LOCK_AT}"
+            )
             if (UsageHelper.hasAccess(c)) {
                 v.setTextViewText(
                     R.id.w_ig_time,
